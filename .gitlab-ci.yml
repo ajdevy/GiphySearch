@@ -1,0 +1,58 @@
+# GitLab CI: unit tests (JVM) for all Android modules and :domain:gifs
+# Requires Java 17 and Android SDK matching compileSdk (see gradle/libs.versions.toml).
+
+stages:
+  - test
+
+variables:
+  ANDROID_COMPILE_SDK: "36"
+  ANDROID_BUILD_TOOLS: "35.0.0"
+  # Command line tools build id (https://developer.android.com/studio#command-line-tools-only)
+  ANDROID_SDK_TOOLS: "11076708"
+  ANDROID_HOME: "$CI_PROJECT_DIR/.android-sdk"
+  ANDROID_SDK_ROOT: "$CI_PROJECT_DIR/.android-sdk"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx2g -Dfile.encoding=UTF-8"
+
+default:
+  image: eclipse-temurin:17-jdk-jammy
+  cache:
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+      prefix: "android-sdk-${ANDROID_COMPILE_SDK}"
+    paths:
+      - .gradle/caches
+      - .gradle/wrapper
+      - .android-sdk/
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq wget unzip
+    - export PATH="${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools"
+    - |
+      if [ ! -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]; then
+        mkdir -p "${ANDROID_HOME}/cmdline-tools"
+        wget -q -O /tmp/android-cmdline-tools.zip \
+          "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip"
+        unzip -qq -d "${ANDROID_HOME}/cmdline-tools" /tmp/android-cmdline-tools.zip
+        mv "${ANDROID_HOME}/cmdline-tools/cmdline-tools" "${ANDROID_HOME}/cmdline-tools/latest"
+        rm -f /tmp/android-cmdline-tools.zip
+      fi
+    - yes 2>/dev/null | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --sdk_root="${ANDROID_HOME}" --licenses || true
+    - |
+      "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --sdk_root="${ANDROID_HOME}" \
+        "platforms;android-${ANDROID_COMPILE_SDK}" \
+        "platform-tools" \
+        "build-tools;${ANDROID_BUILD_TOOLS}"
+    - chmod +x ./gradlew
+
+unit_tests:
+  stage: test
+  interruptible: true
+  script:
+    - ./gradlew testDebugUnitTest :domain:gifs:test --no-daemon --no-configuration-cache --stacktrace
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "**/build/test-results/**/TEST-*.xml"
+    expire_in: 1 week
