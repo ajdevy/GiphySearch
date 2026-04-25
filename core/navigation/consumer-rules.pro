@@ -1,0 +1,2 @@
+-keep @kotlinx.serialization.Serializable class com.aj.giphysearch.core.navigation.** { *; }
+-keep class com.aj.giphysearch.core.navigation.**$$serializer { *; }

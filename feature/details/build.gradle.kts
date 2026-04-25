@@ -19,6 +19,7 @@ android {
 dependencies {
     implementation(project(":domain:gifs"))
     implementation(project(":core:navigation"))
+    implementation(project(":core:media"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -28,6 +29,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.media3.exoplayer)
     implementation(libs.koin.androidx.compose)
 
     testImplementation(libs.junit)

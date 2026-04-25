@@ -26,4 +26,12 @@ class DetailScreenObject(
     fun gifTitle(title: String): KNode = child {
         hasTestTag("GifTitle_$title")
     }
+
+    val detailImageFallback: KNode = child {
+        hasTestTag("DetailImageFallback")
+    }
+
+    val mp4PlayerUnderlay: KNode = child {
+        hasTestTag("Mp4PlayerUnderlay")
+    }
 }

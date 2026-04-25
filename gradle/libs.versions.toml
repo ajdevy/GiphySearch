@@ -28,6 +28,8 @@ kaspresso = "1.5.5"
 detekt = "1.23.8"
 timber = "5.0.1"
 profileinstaller = "1.3.1"
+media3 = "1.5.1"
+okhttpCore = "4.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -76,6 +78,11 @@ kaspresso-compose-support = { group = "com.kaspersky.android-components", name =
 detekt-gradle-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttpCore" }
+androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
+androidx-media3-datasource = { group = "androidx.media3", name = "media3-datasource", version.ref = "media3" }
+androidx-media3-datasource-okhttp = { group = "androidx.media3", name = "media3-datasource-okhttp", version.ref = "media3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

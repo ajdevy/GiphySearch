@@ -21,6 +21,7 @@ import com.aj.giphysearch.R
 import com.aj.giphysearch.core.navigation.SearchRoute
 import com.aj.giphysearch.core.navigation.TopLevelDestination
 import com.aj.giphysearch.core.navigation.TrendingRoute
+import com.aj.giphysearch.core.navigation.navigateIfResumed
 import com.aj.giphysearch.core.navigation.topLevelDestinations
 import com.aj.giphysearch.navigation.AppNavHost
 
@@ -43,7 +44,7 @@ fun MainScreen() {
                             modifier = Modifier.testTag(destination.testTag),
                             selected = currentDestination?.hasRoute(destination.route::class) == true,
                             onClick = {
-                                navController.navigate(destination.route) {
+                                navController.navigateIfResumed(destination.route) {
                                     launchSingleTop = true
                                     restoreState = true
                                     popUpTo(navController.graph.findStartDestination().id) {
