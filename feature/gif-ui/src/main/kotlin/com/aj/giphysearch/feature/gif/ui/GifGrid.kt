@@ -15,21 +15,29 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
+import com.aj.giphysearch.core.media.MediaPool
+import com.aj.giphysearch.core.media.rememberActiveIndices
+import com.aj.giphysearch.core.media.stillCacheKey
 import com.aj.giphysearch.domain.gifs.model.Gif
 import timber.log.Timber
 
@@ -52,6 +60,27 @@ fun GifGrid(
     }
 
     val gridState = rememberLazyStaggeredGridState()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val mediaPool = remember {
+        MediaPool(
+            playerFactory = {
+                ExoPlayer.Builder(context).build().apply {
+                    repeatMode = Player.REPEAT_MODE_ONE
+                    volume = 0f
+                    playWhenReady = true
+                }
+            },
+        )
+    }
+    val activeIndices by rememberActiveIndices(gridState = gridState, maxActiveItems = 3)
+
+    DisposableEffect(lifecycleOwner, mediaPool) {
+        lifecycleOwner.lifecycle.addObserver(mediaPool)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(mediaPool)
+        }
+    }
 
     PrefetchGifsEffect(
         gridState = gridState,
@@ -74,6 +103,8 @@ fun GifGrid(
             if (gif != null) {
                 GifGridItem(
                     gif = gif,
+                    isActive = index in activeIndices,
+                    mediaPool = mediaPool,
                     onClick = { onGifClick(gif.id) },
                 )
             }
@@ -137,9 +168,10 @@ private fun PrefetchGifsEffect(
 
                     for (i in start until end) {
                         val gif = lazyPagingItems[i]
-                        if (gif != null && preloadedUrls.add(gif.previewUrl)) {
+                        if (gif != null && preloadedUrls.add(gif.images.stillUrl.ifBlank { gif.previewUrl })) {
                             val request = ImageRequest.Builder(context)
-                                .data(gif.previewUrl)
+                                .data(gif.images.stillUrl.ifBlank { gif.previewUrl })
+                                .memoryCacheKey(stillCacheKey(gif.id))
                                 .build()
                             imageLoader.enqueue(request)
                         }

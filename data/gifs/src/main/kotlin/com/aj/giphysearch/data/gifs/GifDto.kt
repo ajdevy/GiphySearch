@@ -17,11 +17,21 @@ internal data class GifDto(
 internal data class GifImagesDto(
     val original: GifImageDto? = null,
     @SerialName("fixed_width") val fixedWidth: GifImageDto? = null,
+    @SerialName("fixed_width_still") val fixedWidthStill: GifImageStillDto? = null,
     @SerialName("fixed_width_downsampled") val fixedWidthDownsampled: GifImageDto? = null,
 )
 
 @Serializable
 internal data class GifImageDto(
+    val url: String? = null,
+    val webp: String? = null,
+    val mp4: String? = null,
+    val width: String? = null,
+    val height: String? = null,
+)
+
+@Serializable
+internal data class GifImageStillDto(
     val url: String? = null,
     val width: String? = null,
     val height: String? = null,

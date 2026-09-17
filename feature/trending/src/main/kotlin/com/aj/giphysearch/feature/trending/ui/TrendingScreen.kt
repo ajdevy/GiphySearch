@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.aj.giphysearch.feature.gif.ui.R as GifUiR
 import com.aj.giphysearch.feature.gif.ui.CollectGifUiEffects
 import com.aj.giphysearch.feature.gif.ui.GifGrid
 import org.koin.androidx.compose.koinViewModel
@@ -57,12 +56,12 @@ fun TrendingScreen(
                         .testTag("TrendingErrorState"),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(stringResource(GifUiR.string.failed_to_load_gifs))
+                    Text(stringResource(com.aj.giphysearch.feature.gif.ui.R.string.failed_to_load_gifs))
                     TextButton(
                         onClick = { pagingItems.retry() },
                         modifier = Modifier.testTag("TrendingRetryButton"),
                     ) {
-                        Text(stringResource(GifUiR.string.retry))
+                        Text(stringResource(com.aj.giphysearch.feature.gif.ui.R.string.retry))
                     }
                 }
             }

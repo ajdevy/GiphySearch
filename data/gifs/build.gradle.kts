@@ -8,6 +8,10 @@ plugins {
 
 android {
     namespace = "com.aj.giphysearch.data.gifs"
+
+    defaultConfig {
+        consumerProguardFiles("consumer-rules.pro")
+    }
 }
 
 dependencies {

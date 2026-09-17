@@ -8,6 +8,7 @@ import com.aj.giphysearch.domain.gifs.error.GifDomainError
 import com.aj.giphysearch.domain.gifs.error.GifLoadResult
 import com.aj.giphysearch.domain.gifs.fakes.FakeGifRepository
 import com.aj.giphysearch.domain.gifs.model.Gif
+import com.aj.giphysearch.domain.gifs.model.GifImages
 import com.aj.giphysearch.domain.gifs.usecase.GetGifByIdUseCase
 import com.aj.giphysearch.feature.details.test.screenobjects.DetailScreenObject
 import com.aj.giphysearch.feature.details.ui.DetailScreen
@@ -51,10 +52,15 @@ class DetailScreenTest : TestCase(
         rating = "g",
         username = "testuser",
         source = "url",
-        originalUrl = "url",
-        previewUrl = "url",
         width = 100,
-        height = 100
+        height = 100,
+        images = GifImages(
+            stillUrl = "https://media.example/still.gif",
+            gridPreviewUrl = "https://media.example/preview.gif",
+            gridMp4Url = null,
+            detailMp4Url = null,
+            detailFallbackUrl = "https://media.example/original.gif",
+        ),
     )
 
     @Before
@@ -124,6 +130,36 @@ class DetailScreenTest : TestCase(
         step("Verify title is shown after successful retry") {
             ComposeScreen.onComposeScreen<DetailScreenObject>(composeTestRule) {
                 gifTitle(testGif.title).assertIsDisplayed()
+            }
+        }
+    }
+
+    @Test
+    fun detail_fallsBackToImage_whenMp4IsMissing() = run {
+        step("Use gif without mp4 rendition") {
+            fakeRepo.gifByIdOutcome = GifLoadResult.Success(testGif.copy(
+                images = testGif.images.copy(detailMp4Url = null),
+            ))
+            setContent()
+        }
+        step("Fallback image branch is visible") {
+            ComposeScreen.onComposeScreen<DetailScreenObject>(composeTestRule) {
+                detailImageFallback.assertIsDisplayed()
+            }
+        }
+    }
+
+    @Test
+    fun detail_usesMp4PlayerUnderlay_whenMp4IsPresent() = run {
+        step("Use gif with mp4 rendition and render screen") {
+            fakeRepo.gifByIdOutcome = GifLoadResult.Success(testGif.copy(
+                images = testGif.images.copy(detailMp4Url = "https://media.example/original.mp4"),
+            ))
+            setContent()
+        }
+        step("Mp4 underlay is displayed") {
+            ComposeScreen.onComposeScreen<DetailScreenObject>(composeTestRule) {
+                mp4PlayerUnderlay.assertIsDisplayed()
             }
         }
     }

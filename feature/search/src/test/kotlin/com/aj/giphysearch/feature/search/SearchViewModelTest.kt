@@ -1,9 +1,9 @@
 package com.aj.giphysearch.feature.search
 
+import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
-import androidx.paging.AsyncPagingDataDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import app.cash.turbine.test

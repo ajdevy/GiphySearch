@@ -1,0 +1,3 @@
+-keep @kotlinx.serialization.Serializable class com.aj.giphysearch.data.gifs.** { *; }
+-keep class com.aj.giphysearch.data.gifs.**$$serializer { *; }
+-keep class com.aj.giphysearch.data.gifs._*Impl { *; }

@@ -1,7 +1,7 @@
 package com.aj.giphysearch.domain.gifs.usecase
 
-import com.aj.giphysearch.domain.gifs.error.GifLoadResult
 import com.aj.giphysearch.domain.gifs.error.GifDomainError
+import com.aj.giphysearch.domain.gifs.error.GifLoadResult
 import com.aj.giphysearch.domain.gifs.model.Gif
 import com.aj.giphysearch.domain.gifs.repository.GifRepository
 import kotlinx.coroutines.test.runTest

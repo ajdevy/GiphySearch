@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.aj.giphysearch.core.navigation.DetailRoute
 import com.aj.giphysearch.core.navigation.SearchRoute
+import com.aj.giphysearch.core.navigation.navigateIfResumed
 import com.aj.giphysearch.feature.details.navigation.detailDestination
 import com.aj.giphysearch.feature.search.navigation.searchDestination
 import com.aj.giphysearch.feature.trending.navigation.trendingDestination
@@ -25,11 +26,19 @@ fun AppNavHost(
     ) {
         searchDestination(
             contentPadding = contentPadding,
-            onGifClick = { gifId -> navController.navigate(DetailRoute(gifId)) },
+            onGifClick = { gifId ->
+                navController.navigateIfResumed(DetailRoute(gifId)) {
+                    launchSingleTop = true
+                }
+            },
         )
         trendingDestination(
             contentPadding = contentPadding,
-            onGifClick = { gifId -> navController.navigate(DetailRoute(gifId)) },
+            onGifClick = { gifId ->
+                navController.navigateIfResumed(DetailRoute(gifId)) {
+                    launchSingleTop = true
+                }
+            },
         )
         detailDestination(
             onBack = { navController.popBackStack() },

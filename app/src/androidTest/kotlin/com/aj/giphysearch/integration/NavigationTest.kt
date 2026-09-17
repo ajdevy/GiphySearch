@@ -4,9 +4,12 @@ import android.content.pm.ActivityInfo
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -114,6 +117,43 @@ class NavigationTest : TestCase(
 
         step("Check Trending Screen is displayed again") {
             composeTestRule.onNodeWithTag("GifGrid").assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun testRapidDoubleClickNavigatesToSingleDetailsScreen() = run {
+        step("Wait for app shell to be ready") {
+            waitForAppShell()
+        }
+
+        step("Prepare trending data with details response") {
+            repository.trendingOutcome = GifLoadResult.Success(trendingTestGifs)
+            repository.emitGifDetails(trendingTestGifs[0])
+            openTrendingTab()
+            waitForGifItem(trendingTestGifs[0].id)
+        }
+
+        step("Double-tap the same gif (gesture before list is torn down)") {
+            val targetTag = "GifItem_${trendingTestGifs[0].id}"
+            composeTestRule.onNodeWithTag(targetTag).performTouchInput {
+                doubleClick()
+            }
+        }
+
+        step("Verify only one detail screen is present") {
+            composeTestRule.waitUntil(timeoutMillis = 10_000) {
+                composeTestRule
+                    .onAllNodesWithTag("DetailScreen")
+                    .fetchSemanticsNodes()
+                    .isNotEmpty()
+            }
+            composeTestRule
+                .onAllNodesWithTag("DetailScreen")
+                .assertCountEquals(1)
+            composeTestRule.onNodeWithTag("BackButton").performClick()
+            composeTestRule
+                .onAllNodesWithTag("DetailScreen")
+                .assertCountEquals(0)
         }
     }
 

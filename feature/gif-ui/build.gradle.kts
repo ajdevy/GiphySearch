@@ -14,6 +14,7 @@ android {
 
 dependencies {
     implementation(project(":domain:gifs"))
+    implementation(project(":core:media"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(platform(libs.androidx.compose.bom))
@@ -24,5 +25,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.network.okhttp)
+    implementation(libs.androidx.media3.exoplayer)
     implementation(libs.timber)
 }

@@ -24,15 +24,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.aj.giphysearch.core.media.GifMp4Player
+import com.aj.giphysearch.core.media.gridCacheKey
 import com.aj.giphysearch.domain.gifs.model.Gif
 import com.aj.giphysearch.feature.details.R
 import org.koin.androidx.compose.koinViewModel
@@ -102,10 +111,24 @@ fun DetailScreen(
 
 @Composable
 private fun DetailContent(gif: Gif) {
+    val context = LocalContext.current
     val aspectRatio = if (gif.width > 0 && gif.height > 0) {
         gif.width.toFloat() / gif.height.toFloat()
     } else {
         1f
+    }
+    val player = remember(gif.id) {
+        ExoPlayer.Builder(context).build().apply {
+            repeatMode = Player.REPEAT_MODE_ONE
+            volume = 0f
+            playWhenReady = true
+        }
+    }
+
+    DisposableEffect(player) {
+        onDispose {
+            player.release()
+        }
     }
 
     Column(
@@ -113,14 +136,33 @@ private fun DetailContent(gif: Gif) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-        AsyncImage(
-            model = gif.originalUrl,
-            contentDescription = gif.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(aspectRatio),
-        )
+        val imageModifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(aspectRatio)
+        if (!gif.detailMp4Url.isNullOrBlank()) {
+            GifMp4Player(
+                player = player,
+                mp4Url = gif.detailMp4Url,
+                stillModel = ImageRequest.Builder(context)
+                    .data(gif.originalUrl)
+                    .placeholderMemoryCacheKey(gridCacheKey(gif.id))
+                    .crossfade(true)
+                    .build(),
+                contentDescription = gif.title,
+                modifier = imageModifier,
+            )
+        } else {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(gif.originalUrl)
+                    .placeholderMemoryCacheKey(gridCacheKey(gif.id))
+                    .crossfade(true)
+                    .build(),
+                contentDescription = gif.title,
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier.testTag("DetailImageFallback"),
+            )
+        }
 
         Column(modifier = Modifier.padding(16.dp)) {
             if (gif.title.isNotBlank()) {
